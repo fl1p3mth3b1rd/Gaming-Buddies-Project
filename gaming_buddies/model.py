@@ -12,14 +12,15 @@ class User_general_information(db.Model):
     birth_date = db.Column(db.Date)
     gender = db.Column(db.String(20))
     posts = db.relationship('Post_information', backref='user')
+    responses = db.relationship('User_response', backref='user')
     # profile_photo = 
 
     def __repr__(self):
         return "<User id: {}, User nickname {}>".format(self.id, self.nickname)
 
 class Post_information(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey('user_general_information.id'))
     post_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user_general_information.id'))
     # game_id = 
     country = db.Column(db.String(100))
     timezone = db.Column(db.String(50))
@@ -28,3 +29,10 @@ class Post_information(db.Model):
     discord = db.Column(db.String(50))
     prime_time = db.Column(db.String(50))
     post_status = db.Column(db.String(50))
+    responses = db.relationship('User_response', backref='user')
+
+class User_response(db.Model):
+    response_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user_general_information.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post_information.post_id'))
+    response_status = db.Column(db.String(30))
