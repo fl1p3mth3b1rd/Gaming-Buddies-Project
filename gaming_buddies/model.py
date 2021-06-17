@@ -36,3 +36,8 @@ class User_response(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user_general_information.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('post_information.post_id'))
     response_status = db.Column(db.String(30))
+
+class Game_information(db.Model):
+    game_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200))
+    genre = db.Column(db.String(200))
