@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class User_general_information(db.Model):
+class User_General_Information(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nickname = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(100), nullable=False)
@@ -18,7 +18,7 @@ class User_general_information(db.Model):
     def __repr__(self):
         return "<User id: {}, User nickname {}>".format(self.id, self.nickname)
 
-class Post_information(db.Model):
+class Post(db.Model):
     post_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user_general_information.id'))
     # game_id = 
@@ -31,13 +31,13 @@ class Post_information(db.Model):
     post_status = db.Column(db.String(50))
     responses = db.relationship('User_response', backref='user')
 
-class User_response(db.Model):
+class UserResponse(db.Model):
     response_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user_general_information.id'))
     post_id = db.Column(db.Integer, db.ForeignKey('post_information.post_id'))
     response_status = db.Column(db.String(30))
 
-class Game_information(db.Model):
+class GameInformation(db.Model):
     game_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
     genre = db.Column(db.String(200))
