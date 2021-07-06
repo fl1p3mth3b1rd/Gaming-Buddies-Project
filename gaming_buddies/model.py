@@ -1,10 +1,13 @@
+from enum import unique
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
-class UserGeneralInformation(db.Model):
+class UserGeneralInformation(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    nickname = db.Column(db.String(20), nullable=False)
+    nickname = db.Column(db.String(20), nullable=False, index=True, unique=True)
     password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(50), nullable=False)
     first_name = db.Column(db.String(100), nullable=False)
@@ -13,6 +16,12 @@ class UserGeneralInformation(db.Model):
     gender = db.Column(db.String(20))
     posts = db.relationship('Post_information', backref='user_post')
     responses = db.relationship('User_response', backref='user_response')
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     def __repr__(self):
         return "<User id: {}, User nickname {}>".format(self.id, self.nickname)
