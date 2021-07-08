@@ -1,6 +1,7 @@
+
 from flask import Flask, render_template, flash, redirect, url_for
 from flask_login.utils import logout_user
-from gaming_buddies.model import db, UserGeneralInformation
+from gaming_buddies.model import db, UserGeneralInformation, GameInformation
 from gaming_buddies.forms import LoginForm, RegistrationForm, LookingForGamersForm
 from flask_login import LoginManager, login_user, logout_user
 
@@ -34,7 +35,7 @@ def create_app():
         flash('Неправильное имя пользователя или пароль')
         return redirect(url_for('login'))
 
-    @app.route('logout')
+    @app.route('/logout')
     def logout():
         logout_user()
         flash('Вы успешно разлогинились')
@@ -51,5 +52,11 @@ def create_app():
         title = 'Поиск игроков'
         post_form = LookingForGamersForm()
         return render_template('post.html', page_title=title, form=post_form)
-
+    @app.route('/')
+    def index():
+        title = 'Главная страница'
+        game_list = GameInformation.query.all()
+        print(type((game_list[1])))
+        return render_template('index.html', title=title, game_list=game_list)
     return app
+

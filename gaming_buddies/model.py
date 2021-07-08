@@ -2,8 +2,12 @@ from enum import unique
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template
 
-db = SQLAlchemy()
+app = Flask(__name__)
+app.config.from_pyfile('config.py')
+
+db = SQLAlchemy(app)
 
 class UserGeneralInformation(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -14,8 +18,8 @@ class UserGeneralInformation(db.Model, UserMixin):
     second_name = db.Column(db.String(100))
     birth_date = db.Column(db.Date)
     gender = db.Column(db.String(20))
-    posts = db.relationship('Post_information', backref='user_post')
-    responses = db.relationship('User_response', backref='user_response')
+    posts = db.relationship('Post', backref='user_post')
+    responses = db.relationship('UserResponse', backref='user_response')
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -36,15 +40,17 @@ class Post(db.Model):
     discord = db.Column(db.String(50))
     prime_time = db.Column(db.String(50))
     post_status = db.Column(db.String(50))
-    responses = db.relationship('User_response', backref='post_response')
+    responses = db.relationship('UserResponse', backref='post_response')
 
 class UserResponse(db.Model):
     response_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user_general_information.id'))
-    post_id = db.Column(db.Integer, db.ForeignKey('post_information.post_id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'))
     response_status = db.Column(db.String(30))
 
 class GameInformation(db.Model):
     game_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
     genre = db.Column(db.String(200))
+    def __repr__(self):
+        return '<{} {}>'.format(self.name, self.genre)
