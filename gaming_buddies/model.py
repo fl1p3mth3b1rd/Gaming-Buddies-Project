@@ -1,6 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template
 
-db = SQLAlchemy()
+app = Flask(__name__)
+app.config.from_pyfile('config.py')
+
+db = SQLAlchemy(app)
 
 class UserGeneralInformation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,3 +43,5 @@ class GameInformation(db.Model):
     game_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
     genre = db.Column(db.String(200))
+    def __repr__(self):
+        return '<{} {}>'.format(self.name, self.genre)
