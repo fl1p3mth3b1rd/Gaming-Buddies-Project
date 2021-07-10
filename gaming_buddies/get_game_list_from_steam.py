@@ -25,7 +25,7 @@ def get_games():
         game_types_parsed = soup.find('div', {'class':'popup_genre_expand_content responsive_hidden', 'data-genre-group':'social_and_players'}).findAll('a')
         game_types_urls = []
         game_types = []
-        pages_to_parse = 2
+        pages_to_parse = 10
         games_for_each_type = {}
         pattern = r'\?(.*)'
         for game_type in game_types_parsed:

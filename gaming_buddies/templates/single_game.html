@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="text-center">
+    <h2>Найдите сокомандников для {{ page_title }}!</h2>
+  </div>
+<div class="container">
+  <div class="row my-4">
+    <div class="col">
+      <div class="jumbotron">
+        <div class="container">
+          <div class="row">
+            <div class="col-text-center">
+              <h1>Заявки на командную игру</h1>
+            </div>
+            <div class="col">
+              <a class="btn btn-primary btn-lg" href="{{ url_for('post', game_id=game.game_id) }}" role="button">Оставить заявку</a>
+            </div>
+          </div>
+        </div>
+        <p></p>
+        <p></p>
+        <div class="container-fluid">
+          {% for post in posts%}
+          <div class="row">
+            <div class="col-sm d-flex">
+              <div class="card card-body flex-fill">
+                <h5><a href="{{ url_for('post_page', game_id=game.game_id, post_id=post.post_id) }}">{{ post.description_as_author }}</a></h5>
+              </div>
+            </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

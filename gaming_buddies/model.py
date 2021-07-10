@@ -14,7 +14,7 @@ class UserGeneralInformation(db.Model, UserMixin):
     nickname = db.Column(db.String(20), nullable=False, index=True, unique=True)
     password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(50), nullable=False)
-    first_name = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(100))
     second_name = db.Column(db.String(100))
     birth_date = db.Column(db.Date)
     gender = db.Column(db.String(20))
@@ -33,6 +33,7 @@ class UserGeneralInformation(db.Model, UserMixin):
 class Post(db.Model):
     post_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user_general_information.id'))
+    linked_game_id = db.Column(db.Integer, db.ForeignKey('game_information.game_id'))
     country = db.Column(db.String(100))
     timezone = db.Column(db.String(50))
     description_as_author = db.Column(db.Text)
@@ -50,6 +51,7 @@ class UserResponse(db.Model):
 
 class GameInformation(db.Model):
     game_id = db.Column(db.Integer, primary_key=True)
+    linked_posts = db.relationship('Post', backref='game_linked_post')
     name = db.Column(db.String(200))
     genre = db.Column(db.String(200))
     def __repr__(self):
