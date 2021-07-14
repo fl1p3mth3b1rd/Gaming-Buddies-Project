@@ -1,23 +1,44 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="row">
+  <div class="col-8">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <div class="alert alert-warning" role="alert">
+        {% for message in messages %}
+          {{ message }}<br>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+</div>
 <div class="container">
   <div class="row my-4">
     <div class="col">
       <div class="jumbotron">
         <div class="text-center">
-          <h1>Список игр</h1>
+          <h1>Gaming buddies project</h1>
           <h5>Количество игр: {{ number_of_games }}</h5>
           <h5>Количество заявок: {{ number_of_posts }}</h5>
         </div>
         <div class="container-fluid">
           {% for game in game_list%}
           <div class="row">
-            <div class="col-sm d-flex">
+            <div class="col-3">
               <div class="card card-body flex-fill">
-                <h5 class="card-title"><a href="{{ url_for('single_game', game_id=game.game_id) }}">{{ game.name }}</a></h5>
+                <div class="text-center">
+                  <img src="{{ game.game_logo_dir }}">
+                </div>
               </div>
             </div>
+            <div class="col-9">
+              <div class="card card-body flex-fill">
+                <h5 class="card-title"><a href="{{ url_for('single_game', game_id=game.game_id) }}">{{ game.name }}</a></h5>
+                <h7>{{ game.genre }}</h7>
+              </div>
             </div>
+          </div>
             {% endfor %}
           </div>
         </div>

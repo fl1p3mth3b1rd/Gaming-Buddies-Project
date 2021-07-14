@@ -1,9 +1,10 @@
 
-from flask import Flask, render_template, flash, redirect, url_for, abort
+from flask import Flask, render_template, flash, redirect, url_for, abort, request
 from flask_login.utils import logout_user
 from gaming_buddies.model import db, UserGeneralInformation, GameInformation, Post
 from gaming_buddies.forms import LoginForm, RegistrationForm, LookingForGamersForm
-from flask_login import LoginManager, login_user, logout_user, current_user
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
+from flask_migrate import Migrate
 
 def create_app():
     app = Flask(__name__)
@@ -12,6 +13,7 @@ def create_app():
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'login'
+    migrate = Migrate(app, db)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -77,6 +79,7 @@ def create_app():
         return render_template('application.html', page_title=title, form=form, game_id=game_id)
     
     @app.route('/process-post/<int:game_id>', methods=['POST'])
+    @login_required
     def process_post(game_id):
         user_id = current_user.get_id()
         user_object = UserGeneralInformation.query.filter(UserGeneralInformation.id==user_id).first()
@@ -94,8 +97,15 @@ def create_app():
             db.session.add(new_post)
             db.session.commit()
             flash('Спасибо за пост!')
-            return redirect(url_for('index'))
-        return redirect(url_for('post', game_id=game_id))
+            return redirect(url_for('single_game', game_id=game_id))
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash('Ошибка в поле "{}": {}'.format(
+                        getattr(form, field).label.text,
+                        error
+                    ))
+            return redirect(request.referrer)
 
     @app.route('/')
     def index():
@@ -122,7 +132,11 @@ def create_app():
         return render_template('single_post.html', page_title=title, post=post, post_aurhor_nickname=post_aurhor_nickname)
 
     @app.route('/test')
-    def test_template():
+    def user_profile():
+        return render_template('user_profile.html')
+    
+    @app.route('/test2')
+    def test_template2():
         return render_template('test2.html')
     
     return app

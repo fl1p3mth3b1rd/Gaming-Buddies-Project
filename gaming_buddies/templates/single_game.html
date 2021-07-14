@@ -1,5 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
+<div class="row">
+  <div class="col-8">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <div class="alert alert-warning" role="alert">
+        {% for message in messages %}
+          {{ message }}<br>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+</div>
   <div class="text-center">
     <h2>Найдите сокомандников для {{ page_title }}!</h2>
   </div>
@@ -12,10 +25,21 @@
             <div class="col-text-center">
               <h1>Заявки на командную игру</h1>
             </div>
+            {% if current_user.is_authenticated %}
             <div class="col">
-              <a class="btn btn-primary btn-lg" href="{{ url_for('post', game_id=game.game_id) }}" role="button">Оставить заявку</a>
+                <a class="btn btn-primary btn-lg" href="{{ url_for('post', game_id=game.game_id) }}" role="button">Оставить заявку</a>
             </div>
           </div>
+          {% else %}
+          <div class="container">
+            <div class="row">
+              <h5>
+                <a href="{{ url_for('login') }}">Авторизуйтесь</a>, чтобы оставить заявку
+                <p>Ещё не зарегестрированы? <a href="{{ url_for('registration') }}">Зарегестриуйтесь</a></p>
+              </h5>
+            </div>
+        </div>
+          {% endif %}
         </div>
         <p></p>
         <p></p>
@@ -25,6 +49,7 @@
             <div class="col-sm d-flex">
               <div class="card card-body flex-fill">
                 <h5><a href="{{ url_for('post_page', game_id=game.game_id, post_id=post.post_id) }}">{{ post.description_as_author }}</a></h5>
+                <p>Дата публикации: {{post.created.strftime('%d.%m.%Y')}}</p>
               </div>
             </div>
             </div>
