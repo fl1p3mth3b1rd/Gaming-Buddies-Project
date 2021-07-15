@@ -1,8 +1,10 @@
 
+import re
 from flask import Flask, render_template, flash, redirect, url_for, abort, request
 from flask_login.utils import logout_user
+from sqlalchemy.orm import session
 from gaming_buddies.model import db, UserGeneralInformation, GameInformation, Post
-from gaming_buddies.forms import LoginForm, RegistrationForm, LookingForGamersForm
+from gaming_buddies.forms import LoginForm, RegistrationForm, LookingForGamersForm, AdditionalUserInformationForm
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_migrate import Migrate
 
@@ -31,7 +33,7 @@ def create_app():
     def process_login():
         form = LoginForm()
         if form.validate_on_submit():
-            user = UserGeneralInformation.query.filter_by(nickname=form.username.data).first()
+            user = UserGeneralInformation.query.filter(UserGeneralInformation.nickname==form.username.data).first()
             if user and user.check_password(form.password.data):
                 login_user(user)
                 flash('Вы вошли на сайт')
@@ -56,7 +58,15 @@ def create_app():
     @app.route('/process-reg', methods=['POST'])
     def process_reg():
         form = RegistrationForm()
+        username_check = UserGeneralInformation.query.filter(UserGeneralInformation.nickname==form.username.data).first()
+        email_check = UserGeneralInformation.query.filter(UserGeneralInformation.email==form.email.data).first()
         if form.validate_on_submit():
+            if username_check:
+                flash('Имя пользователя занято')
+                return redirect(request.referrer)
+            if email_check:
+                flash('Данный email уже зарегестрирован')
+                return redirect(request.referrer)
             new_user = UserGeneralInformation(nickname=form.username.data, email=form.email.data)
             new_user.set_password(form.password.data)
             db.session.add(new_user)
@@ -129,15 +139,57 @@ def create_app():
         post_aurhor_nickname = UserGeneralInformation.query.filter(UserGeneralInformation.id == post_author_id).first().nickname
         title = "Предложение для совместной игры"
         post = Post.query.filter(Post.post_id==post_id).first()
-        return render_template('single_post.html', page_title=title, post=post, post_aurhor_nickname=post_aurhor_nickname)
+        return render_template('single_post.html', page_title=title, post=post, post_aurhor_nickname=post_aurhor_nickname,
+            post_author_id=post_author_id)
 
-    @app.route('/test')
-    def user_profile():
-        return render_template('user_profile.html')
+    @app.route('/user_profile/<int:user_id>')
+    @login_required
+    def user_profile(user_id):
+        user_object = UserGeneralInformation.query.filter(UserGeneralInformation.id==user_id).first()
+        return render_template('user_profile.html', user_id=user_id, user_object=user_object)
     
+    @app.route('/edit/user_profile')
+    def edit_user_profile():
+        form = AdditionalUserInformationForm()
+        return render_template('edit_user_profile.html', form=form)
+    
+    @app.route('/process-edit/user_profile', methods=['POST'])
+    @login_required
+    def process_edit_user_profile():
+        user_params = ['nickname','first_name', 'second_name', 'birth_date', 'gender', 'about_myself']
+        form = AdditionalUserInformationForm()
+        old_username = current_user.nickname
+        new_nickname = form.nickname.data
+        username_check = UserGeneralInformation.query.filter(UserGeneralInformation.nickname==new_nickname).first()
+        if form.validate_on_submit():
+            if username_check and new_nickname != old_username:
+                flash('Пользователь с таким никнеймом уже существует')
+                return redirect(request.referrer)
+            else:
+                params_to_update = {getattr(UserGeneralInformation, attr) : getattr(form, attr).data 
+                    for attr in user_params if getattr(form, attr).data}
+                db.session.query(UserGeneralInformation).filter(UserGeneralInformation.nickname==old_username).\
+                    update(params_to_update)
+                db.session.commit()
+                flash('Изменения внесены')
+                return redirect(request.referrer)
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash('Ошибка в поле "{}": {}'.format(
+                        getattr(form, field).label.text,
+                        error
+                    ))
+            return redirect(request.referrer)
+
     @app.route('/test2')
     def test_template2():
         return render_template('test2.html')
-    
+
+    @app.route('/test2_recieve', methods=['POST'])
+    def test_template2_recieve():
+        print(request.form)
+        return render_template('test2.html')
+
     return app
 
