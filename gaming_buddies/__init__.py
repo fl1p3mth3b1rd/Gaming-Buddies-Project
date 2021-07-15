@@ -1,13 +1,17 @@
 from flask import Flask, render_template, flash, redirect, url_for
 from flask_login.utils import logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from flask_migrate import Migrate 
+
 from gaming_buddies.model import db, UserGeneralInformation, GameInformation
 from gaming_buddies.forms import LoginForm, RegistrationForm, LookingForGamersForm
-from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+
 
 def create_app():
     app = Flask(__name__)
     app.config.from_pyfile('config.py')
     db.init_app(app)
+    migrate = Migrate(app, db)
 
     login_manager = LoginManager()
     login_manager.init_app(app)
