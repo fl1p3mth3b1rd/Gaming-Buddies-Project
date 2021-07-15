@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, flash, redirect, url_for, abort, request
 from flask_login.utils import logout_user
 from gaming_buddies.model import db, UserGeneralInformation, GameInformation, Post
@@ -6,10 +5,13 @@ from gaming_buddies.forms import LoginForm, RegistrationForm, LookingForGamersFo
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_migrate import Migrate
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_pyfile('config.py')
     db.init_app(app)
+    migrate = Migrate(app, db)
+
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'login'
@@ -30,8 +32,9 @@ def create_app():
     @app.route('/process-login', methods=['POST'])
     def process_login():
         form = LoginForm()
+
         if form.validate_on_submit():
-            user = UserGeneralInformation.query.filter_by(nickname=form.username.data).first()
+            user = UserGeneralInformation.query.filter_by(UserGeneralInformation.nickname==form.username.data).first()
             if user and user.check_password(form.password.data):
                 login_user(user)
                 flash('Вы вошли на сайт')
@@ -114,7 +117,15 @@ def create_app():
         number_of_games = len(game_list)
         number_of_posts = db.session.query(Post).count()
         return render_template('index.html', title=title, game_list=game_list, number_of_games=number_of_games, number_of_posts=number_of_posts)
-
+    
+    @app.route('/admin')
+    @login_required
+    def admin_index():
+        if current_user.is_admin:
+            return 'Привет админ!'
+        else:
+            return 'Страница доступна только администраторам'
+        
     @app.route('/<int:game_id>')
     def single_game(game_id):
         game = GameInformation.query.filter(GameInformation.game_id == game_id).first()
@@ -138,6 +149,6 @@ def create_app():
     @app.route('/test2')
     def test_template2():
         return render_template('test2.html')
-    
+      
     return app
 
