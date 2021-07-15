@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateField, IntegerField, TextField
-from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms.validators import DataRequired, Email, EqualTo, Optional
 
 class LoginForm(FlaskForm):
     username = StringField('Никнейм пользователя', validators=[DataRequired()], render_kw={'class':'form-control'})
@@ -13,10 +13,16 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()], render_kw={'class':'form-control'})
     password2 = PasswordField('Повторите пароль', validators=[DataRequired(), EqualTo('password')], render_kw={'class':'form-control'})
     email = StringField('email', validators=[DataRequired(), Email()], render_kw={'class':'form-control'})
+    submit = SubmitField('Отправить', render_kw={'class':'btn btn-primary'})
+
+class AdditionalUserInformationForm(FlaskForm):
+    nickname = StringField('Никнейм пользователя', validators=[DataRequired()], render_kw={'class':'form-control'})
     first_name = StringField('Имя пользователя', render_kw={'class':'form-control'})
     second_name = StringField('Фамилия пользователя', render_kw={'class':'form-control'})
-    birth_date = DateField('Дата рождения', render_kw={'class':'form-control'})
+    birth_date = DateField('Дата рождения', validators=[Optional()],
+        render_kw={'class':'form-control'})
     gender = StringField('Пол', render_kw={'class':'form-control'})
+    about_myself = TextField('О себе', render_kw={'class':'form-control'})
     submit = SubmitField('Отправить', render_kw={'class':'btn btn-primary'})
 
 class LookingForGamersForm(FlaskForm):

@@ -4,43 +4,56 @@
   <div class="row my-4">
     <div class="col">
       <div class="jumbotron">
-        <h3>Заявка от {{ post_aurhor_nickname }}</h3>
+        <h3>Заявка от <a href="{{ url_for('user_profile', user_id=post_author_id) }}">{{ post_aurhor_nickname }}</a></h3>
+        <p>Дата публикации: {{post.created.strftime('%d.%m.%Y')}}</p>
           <dl class="row">
             <dt class="col-sm-3">Цель</dt>
             {% if post.purpose_as_author %}
-            <dd class="col-sm-9">{{ post.purpose_as_author }}</dd>
+              <dd class="col-sm-8 posts-text">
+                <p class="text-break">{{ post.purpose_as_author }}</p>
+              </dd>
             {% else %}
-            <dd class="col-sm-9"></dd>
+              <dd class="col-sm-9"></dd>
             {% endif %}
             <dt class="col-sm-3">Описание</dt>
             {% if post.description_as_author %}
-            <dd class="col-sm-9">{{ post.description_as_author }}</dd>
+              <dd class="col-sm-8 posts-text">
+                <p class="text-break">{{ post.description_as_author }}</p>
+              </dd>
             {% else %}
-            <dd class="col-sm-9"></dd>
+              <dd class="col-sm-9"></dd>
             {% endif %}
             <dt class="col-sm-3">Страна</dt>
             {% if post.country %}
-            <dd class="col-sm-9">{{ post.country }}</dd>
+              <dd class="col-sm-8 posts-text">
+                <p class="text-break">{{ post.country }}</p>
+              </dd>
             {% else %}
-            <dd class="col-sm-9"></dd>
+              <dd class="col-sm-9"></dd>
             {% endif %}
             <dt class="col-sm-3">Часовой пояс</dt>
             {% if post.timezone %}
-            <dd class="col-sm-9">{{ post.timezone }}</dd>
+              <dd class="col-sm-8 posts-text">
+                <p class="text-break">{{ post.timezone }}</p>
+              </dd>
             {% else %}
-            <dd class="col-sm-9"></dd>
+              <dd class="col-sm-9"></dd>
             {% endif %}
             <dt class="col-sm-3">Дискорд</dt>
             {% if post.discord %}
-            <dd class="col-sm-9">{{ post.discord }}</dd>
+              <dd class="col-sm-8 posts-text">
+                <p class="text-break">{{ post.discord }}</p>
+              </dd>
             {% else %}
-            <dd class="col-sm-9"></dd>
+              <dd class="col-sm-9"></dd>
             {% endif %}
             <dt class="col-sm-3">Прайм тайм</dt>
             {% if post.prime_time %}
-            <dd class="col-sm-9">{{ post.prime_time }}</dd>
+              <dd class="col-sm-8 posts-text">
+                <p class="text-break">{{ post.prime_time }}</p>
+              </dd>
             {% else %}
-            <dd class="col-sm-9"></dd>
+              <dd class="col-sm-9"></dd>
             {% endif %}
           </dl>
       </div>

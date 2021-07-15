@@ -12,7 +12,7 @@
         <span class="nav-link">Привет, {{ current_user.nickname }}!</span>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{{url_for('user_profile')}}">Профиль <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="{{url_for('user_profile', user_id=current_user.id)}}">Профиль <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{{url_for('logout')}}">Выйти</a>
