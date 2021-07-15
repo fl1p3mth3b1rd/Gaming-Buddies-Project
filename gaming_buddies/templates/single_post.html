@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+  <div class="row my-4">
+    <div class="col">
+      <div class="jumbotron">
+        <h3>Заявка от {{ post_aurhor_nickname }}</h3>
+          <dl class="row">
+            <dt class="col-sm-3">Цель</dt>
+            {% if post.purpose_as_author %}
+            <dd class="col-sm-9">{{ post.purpose_as_author }}</dd>
+            {% else %}
+            <dd class="col-sm-9"></dd>
+            {% endif %}
+            <dt class="col-sm-3">Описание</dt>
+            {% if post.description_as_author %}
+            <dd class="col-sm-9">{{ post.description_as_author }}</dd>
+            {% else %}
+            <dd class="col-sm-9"></dd>
+            {% endif %}
+            <dt class="col-sm-3">Страна</dt>
+            {% if post.country %}
+            <dd class="col-sm-9">{{ post.country }}</dd>
+            {% else %}
+            <dd class="col-sm-9"></dd>
+            {% endif %}
+            <dt class="col-sm-3">Часовой пояс</dt>
+            {% if post.timezone %}
+            <dd class="col-sm-9">{{ post.timezone }}</dd>
+            {% else %}
+            <dd class="col-sm-9"></dd>
+            {% endif %}
+            <dt class="col-sm-3">Дискорд</dt>
+            {% if post.discord %}
+            <dd class="col-sm-9">{{ post.discord }}</dd>
+            {% else %}
+            <dd class="col-sm-9"></dd>
+            {% endif %}
+            <dt class="col-sm-3">Прайм тайм</dt>
+            {% if post.prime_time %}
+            <dd class="col-sm-9">{{ post.prime_time }}</dd>
+            {% else %}
+            <dd class="col-sm-9"></dd>
+            {% endif %}
+          </dl>
+      </div>
+    </div>
+  </div>
+  {% endblock %}

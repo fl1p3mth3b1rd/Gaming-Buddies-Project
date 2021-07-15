@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 requirements.txt
 gaming_buddies.db
+test.py
+user_profile.html
+*.jpg
