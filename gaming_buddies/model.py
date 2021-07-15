@@ -20,12 +20,17 @@ class UserGeneralInformation(db.Model, UserMixin):
     gender = db.Column(db.String(20))
     posts = db.relationship('Post', backref='user_post')
     responses = db.relationship('UserResponse', backref='user_response')
+    role = db.Column(db.String(20), index=True)
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+
+    @property
+    def is_admin(self):
+        return self.role == 'admin'
 
     def __repr__(self):
         return "<User id: {}, User nickname {}>".format(self.id, self.nickname)
