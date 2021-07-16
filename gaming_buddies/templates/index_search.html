@@ -19,19 +19,10 @@
       <div class="jumbotron">
         <div class="text-center">
           <h1>Gaming Buddies Project</h1>
-          <div class="col d-flex justify-content-center">
-            <form class="form-inline my-2 my-lg-0">
-              <input class="form-control mr-sm-2" type="search" name="game_searched" placeholder="Название игры">
-                <select class="form-control mr-sm-2" name="genre_searched">
-                  <option value="" selected disabled>Жанр</option>
-                  <option></option>
-                  {% for game_type in game_types_list %}
-                  <option>{{ game_type.genre }}</option>
-                  {% endfor %}
-                </select>
-              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
+            <form class="form">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
-          </div>
           <h5>Количество игр: {{ number_of_games }}</h5>
           <h5>Количество заявок: {{ number_of_posts }}</h5>
         </div>

@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/img_in_card.css') }}">
+<div class="row">
+  <div class="col-12">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <div class="alert alert-warning" role="alert">
+        {% for message in messages %}
+          {{ message }}<br>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+</div>
+<div class="container">
+  <div class="row align-items-center">
+    {% if user_id == current_user.id %}
+      <div class="col-3 d-flex justify-content-center">
+        {% if current_user.profile_picture_dir %}
+          <div class="card p-3 my-3">
+            <img class="card-img-top" src="{{ current_user.profile_picture_dir }}" alt="Card image" style="width:100%">
+          </div>
+        {% else %}
+          <div class="card p-3 my-3">
+            <img class="card-img-top" src="/static/profile_pictures/default_pp.png" alt="Card image" style="width:100%">
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="col-3 d-flex justify-content-center">
+        {% if user_object.profile_picture_dir %}
+          <div class="card p-3 my-3">
+            <img class="card-img-top" src="{{ user_object.profile_picture_dir }}" alt="Card image" style="width:100%">
+          </div>
+        {% else %}
+          <div class="card p-3 my-3">
+            <img class="card-img-top" src="/static/profile_pictures/default_pp.png" alt="Card image" style="width:100%">
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+    <div class="col-9">
+      <div class="container p-3 my-3 bg-dark text-white">
+        <h5>Основная информация</h5>
+        {% if user_id == current_user.id %}
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Никнейм: </p>
+            </div>
+            <div class="col-9">
+              {% if current_user.nickname %}
+                <p class="text-break">{{ current_user.nickname }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Дата регистрации: </p>
+            </div>
+            <div class="col-9">
+              {% if current_user %}
+                <p class="text-break">{{ current_user.reg_date.strftime('%d.%m.%Y') }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Никнейм: </p>
+            </div>
+            <div class="col-9">
+              {% if user_object.nickname %}
+                <p class="text-break">{{ user_object.nickname }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Дата регистрации: </p>
+            </div>
+            <div class="col-9">
+              {% if user_object %}
+                <p class="text-break">{{ user_object.reg_date.strftime('%d.%m.%Y') }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% if user_id == current_user.id %}
+    <div class="row">
+      <div class="col">
+        <p class="text-center">
+          <a href="{{ url_for('edit_user_profile') }}" class="btn btn-primary">Редактировать</a>
+        </p>
+      </div>
+      <div class="col-9">
+        <div class="container p-3 my-3 bg-dark text-white">
+          <h5>Дополнительная информация</h5>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Имя: </p>
+            </div>
+            <div class="col-9">
+              {% if current_user.first_name %}
+                <p class="text-break">{{ current_user.first_name }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Фамилия: </p>
+            </div>
+            <div class="col-9">
+              {% if current_user.second_name %}
+                <p class="text-break">{{ current_user.second_name }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Дата рождения: </p>
+            </div>
+            <div class="col-9">
+              {% if current_user.birth_date %}
+              <p class="text-break">{{ current_user.birth_date.strftime('%d.%m.%Y') }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Пол: </p>
+            </div>
+            <div class="col-9">
+              {% if current_user.gender %}
+              <p class="text-break">{{ current_user.gender }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">О себе: </p>
+            </div>
+            <div class="col-9">
+              {% if current_user.about_myself %}
+              <p class="text-break">{{ current_user.about_myself }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Посты: </p>
+            </div>
+            <div class="col-9">
+              {% if current_user.posts %}
+                {% for post in current_user.posts %}
+                  <p>
+                    <span class="d-inline-block text-truncate" style="max-width: 400px;">
+                      <a href="{{ url_for('post_page', game_id=post.linked_game_id, post_id=post.post_id) }}">{{ post.description_as_author }}</a>
+                    </span>
+                  </p>
+                {% endfor %}
+              {% else %}
+                <p>Пока у вас нет ни одного поста</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="col">
+      </div>
+      <div class="col-9">
+        <div class="container p-3 my-3 bg-dark text-white">
+          <h5>Дополнительная информация</h5>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Имя: </p>
+            </div>
+            <div class="col-9">
+              {% if user_object.first_name %}
+                <p class="text-break">{{ user_object.first_name }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Фамилия: </p>
+            </div>
+            <div class="col-9">
+              {% if user_object.second_name %}
+                <p class="text-break">{{ user_object.second_name }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Дата рождения: </p>
+            </div>
+            <div class="col-9">
+              {% if user_object.birth_date %}
+              <p class="text-break">{{ user_object.birth_date.strftime('%d.%m.%Y') }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Пол: </p>
+            </div>
+            <div class="col-9">
+              {% if user_object.gender %}
+              <p class="text-break">{{ user_object.gender }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">О себе: </p>
+            </div>
+            <div class="col-9">
+              {% if user_object.about_myself %}
+              <p class="text-break">{{ user_object.about_myself }}</p>
+              {% else %}
+                <p></p>
+              {% endif %}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+                <p class="font-weight-bold">Посты: </p>
+            </div>
+            <div class="col-9">
+              {% if user_object.posts %}
+                {% for post in user_object.posts %}
+                  <p>
+                    <span class="d-inline-block text-truncate" style="max-width: 400px;">
+                      <a href="{{ url_for('post_page', game_id=post.linked_game_id, post_id=post.post_id) }}">{{ post.description_as_author }}</a>
+                    </span>
+                  </p>
+                {% endfor %}
+              {% else %}
+                <p>Пока у {{ user_object.nickname }} нет ни одного поста</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

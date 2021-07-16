@@ -1,23 +1,63 @@
+import os
 import re
-from flask import Flask, render_template, flash, redirect, url_for, abort, request
+from flask import Flask, render_template, flash, redirect, url_for, abort, request, current_app
 from flask_login.utils import logout_user
-from sqlalchemy.orm import session
+# from sqlalchemy.orm import session
 from gaming_buddies.model import db, UserGeneralInformation, GameInformation, Post
 from gaming_buddies.forms import LoginForm, RegistrationForm, LookingForGamersForm, AdditionalUserInformationForm
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_migrate import Migrate
-
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 def create_app():
     app = Flask(__name__)
     app.config.from_pyfile('config.py')
     db.init_app(app)
     migrate = Migrate(app, db)
+    admin = Admin(app)
+    admin.add_view(ModelView(GameInformation, db.session))
+    admin.add_view(ModelView(Post, db.session))
+    admin.add_view(ModelView(UserGeneralInformation, db.session))
 
     login_manager = LoginManager()
     login_manager.init_app(app)
     login_manager.login_view = 'login'
-    migrate = Migrate(app, db)
+
+    def allowed_profile_picture(filename):
+        allowed_extensions = current_app.config['ALLOWED_EXTENSIONS']
+        return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+    @app.route('/process-profile-picture-upload/<int:user_id>', methods=['POST'])
+    @login_required
+    def process_profile_picture_upload(user_id):
+        if request.method == 'POST':
+            if 'file' not in request.files:
+                print('первый if')
+                print(request.files)
+                flash('Выберите файл')
+                return redirect(request.referrer)
+            file = request.files['file']
+            if file.filename == '':
+                print('второй if')
+                flash('Выберите файл')
+                return redirect(request.referrer)
+            if file and allowed_profile_picture(file.filename):
+                print('третий if')
+                filename = f'user_{user_id}_pp.jpg'
+                actual_directory = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                directory = "/static/profile_pictures/" + filename
+                file.save(actual_directory)
+                db.session.query(UserGeneralInformation).filter(UserGeneralInformation.nickname==
+                    current_user.nickname).update(
+                        {UserGeneralInformation.profile_picture_dir : directory})
+                db.session.commit()
+                flash('Изменения внесены')
+                return redirect(url_for('edit_user_profile', user_id=user_id, name=filename))
+            else:
+                flash('Некорректный формат файла')
+                return redirect(request.referrer)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -30,7 +70,7 @@ def create_app():
         title = 'Авторизация'
         login_form = LoginForm()
         return render_template('login.html', page_title=title, form=login_form)
-    
+
     @app.route('/process-login', methods=['POST'])
     def process_login():
         form = LoginForm()
@@ -57,7 +97,7 @@ def create_app():
         title = 'Регистрация'
         reg_form = RegistrationForm()
         return render_template('registration.html', page_title=title, form=reg_form)
-    
+
     @app.route('/process-reg', methods=['POST'])
     def process_reg():
         form = RegistrationForm()
@@ -83,14 +123,14 @@ def create_app():
                         getattr(form, field).label.text,
                         error
                     ))
-            return redirect(url_for('register'))
+            return redirect(url_for('registration'))
 
     @app.route('/post/<int:game_id>')
     def post(game_id):
         title = 'Поиск игроков'
         form = LookingForGamersForm()
         return render_template('application.html', page_title=title, form=form, game_id=game_id)
-    
+
     @app.route('/process-post/<int:game_id>', methods=['POST'])
     @login_required
     def process_post(game_id):
@@ -99,7 +139,7 @@ def create_app():
         game_object = GameInformation.query.filter(GameInformation.game_id==game_id).first()
         form = LookingForGamersForm()
         if form.validate_on_submit():
-            new_post = Post(country=form.country.data, 
+            new_post = Post(country=form.country.data,
                 timezone=form.time_zone.data,
                 description_as_author=form.description_as_author.data,
                 purpose_as_author=form.purpose_as_author.data,
@@ -120,22 +160,42 @@ def create_app():
                     ))
             return redirect(request.referrer)
 
-    @app.route('/')
+    @app.route('/', methods=['GET'])
     def index():
         title = 'Поиск игр'
+        game_types_list = db.session.query(GameInformation.genre).distinct()
+        number_of_posts = db.session.query(Post).count()
+        print(request.url)
+        print(request.args)
+        if request.method == 'GET':
+            if not request.args.get('game_searched') and request.args.get('genre_searched'):
+                game_list = GameInformation.query.filter(GameInformation.genre ==
+                    request.args['genre_searched']).all()
+            elif request.args.get('game_searched') and not request.args.get('genre_searched'):
+                game_list = GameInformation.query.filter(
+                    GameInformation.proper_name.contains(request.args['game_searched'].lower())).all()
+            elif request.args.get('game_searched') and request.args.get('genre_searched'):
+                game_list = GameInformation.query.filter(GameInformation.proper_name.contains(
+                    request.args['game_searched'].lower()), GameInformation.genre ==request.args['genre_searched']).all()
+            else:
+                game_list = GameInformation.query.all()
+            number_of_games = len(game_list)
+            return render_template('index.html', title=title, game_list=game_list, number_of_games=number_of_games,
+            number_of_posts=number_of_posts, game_types_list=game_types_list)
         game_list = GameInformation.query.all()
         number_of_games = len(game_list)
         number_of_posts = db.session.query(Post).count()
-        return render_template('index.html', title=title, game_list=game_list, number_of_games=number_of_games, number_of_posts=number_of_posts)
-    
+        return render_template('index.html', title=title, game_list=game_list, number_of_games=number_of_games,
+            number_of_posts=number_of_posts, game_types_list=game_types_list)
+
     @app.route('/admin')
     @login_required
     def admin_index():
         if current_user.is_admin:
-            return 'Привет админ!'
+            return admin
         else:
             return 'Страница доступна только администраторам'
-        
+
     @app.route('/<int:game_id>')
     def single_game(game_id):
         game = GameInformation.query.filter(GameInformation.game_id == game_id).first()
@@ -158,12 +218,12 @@ def create_app():
     def user_profile(user_id):
         user_object = UserGeneralInformation.query.filter(UserGeneralInformation.id==user_id).first()
         return render_template('user_profile.html', user_id=user_id, user_object=user_object)
-    
+
     @app.route('/edit/user_profile')
     def edit_user_profile():
         form = AdditionalUserInformationForm()
         return render_template('edit_user_profile.html', form=form)
-    
+
     @app.route('/process-edit/user_profile', methods=['POST'])
     @login_required
     def process_edit_user_profile():
@@ -177,7 +237,7 @@ def create_app():
                 flash('Пользователь с таким никнеймом уже существует')
                 return redirect(request.referrer)
             else:
-                params_to_update = {getattr(UserGeneralInformation, attr) : getattr(form, attr).data 
+                params_to_update = {getattr(UserGeneralInformation, attr) : getattr(form, attr).data
                     for attr in user_params if getattr(form, attr).data}
                 db.session.query(UserGeneralInformation).filter(UserGeneralInformation.nickname==old_username).\
                     update(params_to_update)
@@ -197,10 +257,10 @@ def create_app():
     def test_template2():
         return render_template('test2.html')
 
-    @app.route('/test2_recieve', methods=['POST'])
+    @app.route('/test2_recieve', methods=['POST', 'GET'])
     def test_template2_recieve():
         print(request.form)
         return render_template('test2.html')
-      
+
     return app
 

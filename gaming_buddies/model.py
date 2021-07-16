@@ -1,5 +1,5 @@
 from enum import unique
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, event
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template
@@ -29,6 +29,7 @@ class UserGeneralInformation(db.Model, UserMixin):
     gender = db.Column(db.String(20))
     posts = db.relationship('Post', backref='user_post')
     about_myself = db.Column(db.Text(500))
+    profile_picture_dir = db.Column(db.String(10000))
     reg_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
     responses = db.relationship('UserResponse', backref='user_response')
     role = db.Column(db.String(20), index=True)
@@ -70,7 +71,8 @@ class GameInformation(db.Model):
     game_id = db.Column(db.Integer, primary_key=True)
     linked_posts = db.relationship('Post', backref='game_linked_post')
     name = db.Column(db.String(200))
+    proper_name = db.Column(db.String(200))
     genre = db.Column(db.String(200))
-    game_logo_dir = db.Column(db.String(1000))
+    game_logo_dir = db.Column(db.String(10000))
     def __repr__(self):
         return '<{} {}>'.format(self.name, self.genre)

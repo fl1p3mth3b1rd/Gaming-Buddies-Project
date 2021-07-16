@@ -130,5 +130,4 @@ dmypy.json
 requirements.txt
 gaming_buddies.db
 test.py
-user_profile.html
 *.jpg

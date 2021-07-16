@@ -27,7 +27,7 @@ def get_games():
         game_types_parsed = soup.find('div', {'class':'popup_genre_expand_content responsive_hidden', 'data-genre-group':'social_and_players'}).findAll('a')
         game_types_urls = []
         game_types = []
-        pages_to_parse = 1
+        pages_to_parse = 10
         games_for_each_type = {}
         pattern = r'\?(.*)'
         for game_type in game_types_parsed:
@@ -36,7 +36,7 @@ def get_games():
                 games_for_each_type[game_type.text] = {}
                 for page in range(pages_to_parse):
                     game_types.append(game_type.text)
-                    game_types_urls.append(url + f'#p={page}&tab=ConcurrentUsers')
+                    game_types_urls.append(url.strip() + f'#p={page}&tab=ConcurrentUsers')
     get_games_for_each_game_type(game_types_urls, game_types, games_for_each_type)
 
 def get_games_for_each_game_type(game_types_urls, game_types, games_for_each_type):
@@ -61,6 +61,6 @@ def save_games(genre, game, logo_url):
         actual_directory = os.path.join(actual_directory, '..', 'static', 'game_logos', game_name + '.jpg')
         urlretrieve(logo_url, actual_directory)
         directory = "/static/game_logos/" + game_name + '.jpg'
-        new_games = GameInformation(genre=genre, name=game, game_logo_dir=directory)
+        new_games = GameInformation(genre=genre, name=game, game_logo_dir=directory, proper_name=game_name.lower())
         db.session.add(new_games)
         db.session.commit()
